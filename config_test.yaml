@@ -1,0 +1,18 @@
+encode:
+  resolution:
+    - [1280, 720]
+    - [960, 540]
+
+  
+  framerate:
+    - 15
+
+
+  QP:
+    - 22 
+
+  
+decode: 
+
+videos:
+  - "/mnt/g/raw_videos/video/testone1.yuv"
