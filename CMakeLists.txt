@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(delay_measure)
-
-include_directories(/home/zzy/workspace/code/c++/h264_delay_exp/simplest_ffmpeg_video_encoder/encode_decode_delay_measure/3rdParty/)
+PROJECTSOUR
+include_directories(${PROJECT_SOURCE_DIR}/3rdParty/)
 
 add_subdirectory(utils)
 
