@@ -29,3 +29,11 @@ videos:
   - "/mnt/g/raw_videos/video/testone5.yuv"
   - "/mnt/g/raw_videos/video/testone6.yuv"
   - "/mnt/g/raw_videos/video/testone7.yuv"
+
+output:
+  recordpath: "./results/delay.txt"
+
+
+
+settings:
+  save_each_h264: "off"
