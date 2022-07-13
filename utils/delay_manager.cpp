@@ -4,7 +4,7 @@
  * @Author: congsir
  * @Date: 2022-07-07 19:47:23
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2022-07-13 10:36:09
+ * @LastEditTime: 2022-07-13 11:12:56
  */
 
 #include "delay_manager.hpp"
@@ -24,7 +24,7 @@ extern "C" {
 
 bool DelayManager::parser_config() {
     
-    config_file_name = "./config.yaml";
+    config_file_name = "./config_test.yaml";
     config = YAML::LoadFile(config_file_name);
     
     return true;
@@ -165,6 +165,7 @@ bool DelayManager::measure(std::string video_path, CodecPar codec_par) {
     int frame_num = 0;
     int ret = 0;
     
+    down_sample_factor = 120 / codec_par.frame_rate;
     // 进入编码循环
     while (cnt < 120) {
         
@@ -187,8 +188,10 @@ bool DelayManager::measure(std::string video_path, CodecPar codec_par) {
         }
 
         // 以120FPS为标准 降采样
-        if (cnt % down_sample_factor != 0) continue;
-
+        if (cnt % down_sample_factor != 0) {
+            cnt ++;
+            continue;
+        }
 
         in_frame = av_frame_alloc();
         rescale_frame = av_frame_alloc();
