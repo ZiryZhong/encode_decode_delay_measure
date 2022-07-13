@@ -4,7 +4,7 @@
  * @Author: congsir
  * @Date: 2022-07-11 15:15:14
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2022-07-13 14:32:46
+ * @LastEditTime: 2022-07-13 14:33:53
 -->
 0 简介
 ====
@@ -33,9 +33,10 @@
 ====
 + 修改config.yaml中videos字段中的视频路径、以及其他字段的编码参数
 + 如果提示 **FFMPEG** 的动态链接库找不到，先检查系统环境变量是否添加了路径，如果解决不了，则可以修改 **utils** 目录下 **target_link_libraries** 的库文件链接路径。
-+ 创建并进入 **build** 文件夹执行下列命令
++ 在项目根目录下（.../encode_decode_delay_measure/）创建并进入 **build** 文件夹执行下列命令
 ```
     mkdir build
+    cd build
     cmake ..
     make
 ```
