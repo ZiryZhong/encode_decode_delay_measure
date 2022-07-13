@@ -4,7 +4,7 @@
  * @Author: congsir
  * @Date: 2022-07-11 15:15:14
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2022-07-13 14:27:29
+ * @LastEditTime: 2022-07-13 14:32:46
 -->
 0 简介
 ====
@@ -19,8 +19,8 @@
 + build 存放编译相关的文件
 + demo 含有编码、尺度变换、解码三种单独操作的基本样例
 + results 用于存储编码后的h264文件
-+ utils 用于测定编解码
-+ videos 可以存放需要进行原始YUV文件
++ utils 用于测定编解码时延的类
++ videos 可以存放需要进行编解码的原始YUV文件
 
 
 2 运行环境
