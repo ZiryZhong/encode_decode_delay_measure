@@ -1,2 +1,0 @@
-/mnt/g/raw_videos/video/testone1.yuv 1280 720 22 15 15 0.0134535 0.137716 0.0640868 0.201802
-/mnt/g/raw_videos/video/testone1.yuv 960 540 22 15 15 0.00983252 0.110727 0.0367609 0.147488

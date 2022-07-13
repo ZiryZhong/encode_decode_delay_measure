@@ -4,12 +4,12 @@
  * @Author: congsir
  * @Date: 2022-07-11 15:15:14
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2022-07-11 15:48:43
+ * @LastEditTime: 2022-07-13 14:27:29
 -->
 0 简介
 ====
 
-    本项目主要用于测试视频编解码时延的测定，目前仅支持YUV和H264之间的编解码。编解码部分的核心代码在 ./utils/delay_manager.cpp 中的 measure() 函数中。
+本项目主要用于测试视频编解码时延的测定，目前仅支持YUV和H264之间的编解码。编解码部分的核心代码在 ./utils/delay_manager.cpp 中的 measure() 函数中。
 
 
 1 目录结构说明
@@ -33,10 +33,15 @@
 ====
 + 修改config.yaml中videos字段中的视频路径、以及其他字段的编码参数
 + 如果提示 **FFMPEG** 的动态链接库找不到，先检查系统环境变量是否添加了路径，如果解决不了，则可以修改 **utils** 目录下 **target_link_libraries** 的库文件链接路径。
-+ 进入 **build** 文件夹执行下列命令
++ 创建并进入 **build** 文件夹执行下列命令
 ```
+    mkdir build
     cmake ..
     make
+```
++ 运行程序请进入到项目根目录**/encode_decode_delay_measure/**执行
+```
+    ./build/delay_measure
 ```
 + 输出结果保存在 **./results/delay.txt**
     

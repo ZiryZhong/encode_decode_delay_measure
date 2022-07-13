@@ -24,7 +24,7 @@ extern "C" {
 
 bool DelayManager::parser_config() {
     
-    config_file_name = "./config_test.yaml";
+    config_file_name = "./config.yaml";
     config = YAML::LoadFile(config_file_name);
     
     return true;
@@ -35,6 +35,7 @@ bool DelayManager::run_for_one_video(std::string video_path) {
     
     CodecPar codec_par;
     int ret = 0;
+    
     // std::cout << "[INFO] " << "in 1" << std::endl;
     std::cout << "[INFO] " <<"resolution cnt:" << config["encode"]["resolution"].size() << std::endl;
     std::cout << "[INFO] " <<"framerate cnt:" << config["encode"]["framerate"].size() << std::endl;
@@ -72,6 +73,7 @@ bool DelayManager::measure(std::string video_path, CodecPar codec_par) {
 // ----------------------------
 // |        编码部分           |
 // ---------------------------- 
+    double file_size = 0;
     int in_width = 1920;
     int in_height = 1080;
     int down_sample_factor = 1;
@@ -224,6 +226,7 @@ bool DelayManager::measure(std::string video_path, CodecPar codec_par) {
         if(got_picture) {
             fwrite(out_pkt.data,1,out_pkt.size,out_handler);
             // std::cout << "[INFO] " << "success encode:" << frame_num << std::endl;
+            file_size += out_pkt.size;
             frame_num ++ ;
         }
         cnt ++;
@@ -405,8 +408,11 @@ bool DelayManager::measure(std::string video_path, CodecPar codec_par) {
     av_frame_free(&rescale_frame_yuv);
 
     // 将最后的时间输出到文件:
+    file_size = file_size / 1000.f;
     std::cout << "[INFO] " << "finish one measure !"<< std::endl;
-    record_fst << video_path <<" "<< codec_par.width << " " << codec_par.height << " " << codec_par.qp
+    std::cout << "[INFO] " << "file size:" << file_size << std::endl;
+    std::cout << "[INFO] " << "frame num:" << frame_num << std::endl;
+    record_fst << video_path <<" "<< file_size << " " <<codec_par.width << " " << codec_par.height << " " << codec_par.qp
                 << " " << codec_par.frame_rate <<" " << frame_num  << " "<< (encode_duration + decode_duration) * 1e-9 / (frame_num )
                 <<" " <<encode_duration*1e-9 << " " <<decode_duration*1e-9 << " " 
                 <<(encode_duration + decode_duration) * 1e-9 <<"\n";
