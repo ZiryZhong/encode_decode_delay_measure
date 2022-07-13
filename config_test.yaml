@@ -16,3 +16,6 @@ decode:
 
 videos:
   - "/mnt/g/raw_videos/video/testone1.yuv"
+
+output:
+  recordpath: "./results/delay.txt"
