@@ -15,4 +15,12 @@ encode:
 decode: 
 
 videos:
-  - "/mnt/g/raw_videos/video/testone1.yuv"
+    - "/home/smt/Downloads/video/testone1.yuv"
+    
+output:
+  recordpath: "./results/delay.txt"
+
+
+
+settings:
+  save_each_h264: "off"

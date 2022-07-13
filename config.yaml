@@ -6,10 +6,10 @@ encode:
     - [640, 360]
   
   framerate:
-    - 15
-    - 30
-    - 60
     - 120
+    - 60
+    - 30
+    - 15
 
   QP:
     - 22 
@@ -22,14 +22,18 @@ encode:
 decode: 
 
 videos:
-  - "/mnt/g/raw_videos/video/testone1.yuv"
-  - "/mnt/g/raw_videos/video/testone2.yuv"
-  - "/mnt/g/raw_videos/video/testone3.yuv"
-  - "/mnt/g/raw_videos/video/testone4.yuv"
-  - "/mnt/g/raw_videos/video/testone5.yuv"
-  - "/mnt/g/raw_videos/video/testone6.yuv"
-  - "/mnt/g/raw_videos/video/testone7.yuv"
-
+#  - "/home/smt/Downloads/video/testone1.yuv"
+#  - "/home/smt/Downloads/video/testone2.yuv"
+#  - "/home/smt/Downloads/video/testone3.yuv"
+#  - "/home/smt/Downloads/video/testone4.yuv"
+#  - "/home/smt/Downloads/video/testone5.yuv"
+#  - "/home/smt/Downloads/video/testone6.yuv"
+#  - "/home/smt/Downloads/video/testone7.yuv"
+  - "/home/smt/Downloads/video/testone8.yuv"
+  - "/home/smt/Downloads/video/testone9.yuv"
+  - "/home/smt/Downloads/video/testone10.yuv"
+  - "/home/smt/Downloads/video/testone11.yuv"
+  - "/home/smt/Downloads/video/testone12.yuv"
 output:
   recordpath: "./results/delay.txt"
 
