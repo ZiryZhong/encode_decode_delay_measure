@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/zzy/workspace/code/c++/h264_delay_exp/encode_decode_delay_measure/demo/decode_new.cpp
+libavcodec/avcodec.h
+/home/zzy/workspace/code/c++/h264_delay_exp/encode_decode_delay_measure/demo/libavcodec/avcodec.h
+libavutil/opt.h
+/home/zzy/workspace/code/c++/h264_delay_exp/encode_decode_delay_measure/demo/libavutil/opt.h
+libavformat/avformat.h
+/home/zzy/workspace/code/c++/h264_delay_exp/encode_decode_delay_measure/demo/libavformat/avformat.h
+libswscale/swscale.h
+/home/zzy/workspace/code/c++/h264_delay_exp/encode_decode_delay_measure/demo/libswscale/swscale.h
+libavutil/imgutils.h
+/home/zzy/workspace/code/c++/h264_delay_exp/encode_decode_delay_measure/demo/libavutil/imgutils.h
+iostream
+-
+

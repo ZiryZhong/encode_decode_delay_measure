@@ -4,7 +4,7 @@
  * @Author: congsir
  * @Date: 2022-07-06 19:37:11
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2022-07-08 15:10:08
+ * @LastEditTime: 2022-07-13 10:13:19
  */
 
 
@@ -62,13 +62,14 @@ int main(int argc, char* argv[])
     codec_h264_ctx->qmax = 30;
     codec_h264_ctx->qmin = 30;
     codec_h264_ctx->time_base.num = 1;
-    codec_h264_ctx->time_base.den = 30;
+    codec_h264_ctx->time_base.den = 25;
     // codec_h264_ctx->framerate = 30;
     // codec_h264_ctx->gop_size = 10;
     codec_h264_ctx->max_b_frames = 0;
     codec_h264_ctx->pix_fmt = AV_PIX_FMT_YUV420P;
         
-    av_opt_set(codec_h264_ctx->priv_data, "preset", "slow", 0);
+    av_opt_set(codec_h264_ctx->priv_data, "preset", "ultrafast", 0);
+    av_opt_set(codec_h264_ctx->priv_data, "tune", "zerolatency", 0);
 
     int ret = avcodec_open2(codec_h264_ctx,codec_h264,NULL);
     if (ret < 0) {
@@ -92,7 +93,7 @@ int main(int argc, char* argv[])
 
     in_file = fopen(in_file_name, "rb");
     out_file = fopen(out_file_name, "wb");
-
+    
     // 开启输入输出文件流
     if (!in_file) {
         std::cout << "5" << std::endl;
@@ -106,11 +107,13 @@ int main(int argc, char* argv[])
 
     int frame_cnt = 0;
     int size = codec_h264_ctx->height * codec_h264_ctx->width;
+    int down_sample_rate = 120 / codec_h264_ctx->time_base.den;
+
     for (int i=0;i<frame_num;i++) {
         av_init_packet(&out_pkt);
         out_pkt.data = NULL;    // packet data will be allocated by the encoder
         out_pkt.size = 0;
-		
+		std::cout << "i:" << i << std::endl;
         //Read raw YUV data
         // 这边要注意frame不能直接用fread读入 fread 只能写入uint——8类型的对象
         // 因此要不然就要借用imagutil去读入 要不然就要分通道读取
@@ -127,6 +130,9 @@ int main(int argc, char* argv[])
 		}
 
         in_frame->pts = i;
+        // @TODO 直接对源序列降采样 节省编码时间
+
+        if (i % down_sample_rate != 0) continue;
         
         /* encode the image */
         ret = avcodec_encode_video2(codec_h264_ctx, &out_pkt, in_frame, &got_output);
@@ -138,12 +144,17 @@ int main(int argc, char* argv[])
         if (got_output) {
             printf("Succeed to encode frame: %5d\tsize:%5d\n",frame_cnt,out_pkt.size);
 			frame_cnt++;
+            std::cout << "pkt.pts:" << out_pkt.pts << std::endl;
+            std::cout << "pkt.pts:" << out_pkt.duration << std::endl;
+            std::cout << "frame rate:" << codec_h264_ctx->framerate.den << " "
+                                        << codec_h264_ctx->frame_number << std::endl;
+            
             fwrite(out_pkt.data, 1, out_pkt.size, out_file);
             av_free_packet(&out_pkt);
         }
 
     }
-
+    
     for (got_output = 1; got_output;) {
         ret = avcodec_encode_video2(codec_h264_ctx, &out_pkt, NULL, &got_output);
         if (ret < 0) {

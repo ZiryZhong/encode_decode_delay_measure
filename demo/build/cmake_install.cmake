@@ -1,4 +1,4 @@
-# Install script for directory: /home/zzy/workspace/code/c++/h264_delay_exp/simplest_ffmpeg_video_encoder/encode_decode_delay_measure/demo
+# Install script for directory: /home/zzy/workspace/code/c++/h264_delay_exp/encode_decode_delay_measure/demo
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/zzy/workspace/code/c++/h264_delay_exp/simplest_ffmpeg_video_encoder/encode_decode_delay_measure/demo/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/zzy/workspace/code/c++/h264_delay_exp/encode_decode_delay_measure/demo/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

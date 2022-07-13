@@ -4,11 +4,12 @@
  * @Author: congsir
  * @Date: 2022-07-07 19:47:23
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2022-07-10 15:04:43
+ * @LastEditTime: 2022-07-13 10:36:09
  */
 
 #include "delay_manager.hpp"
 #include <chrono>
+
 
 extern "C" {
 
@@ -34,13 +35,13 @@ bool DelayManager::run_for_one_video(std::string video_path) {
     
     CodecPar codec_par;
     int ret = 0;
-    std::cout << "[INFO] " << "in 1" << std::endl;
+    // std::cout << "[INFO] " << "in 1" << std::endl;
     std::cout << "[INFO] " <<"resolution cnt:" << config["encode"]["resolution"].size() << std::endl;
     std::cout << "[INFO] " <<"framerate cnt:" << config["encode"]["framerate"].size() << std::endl;
     std::cout << "[INFO] " <<"QP cnt:" << config["encode"]["QP"].size() << std::endl;
 
     for (int i=0;i<config["encode"]["resolution"].size();i++) {
-        std::cout << "[INFO] " << "in 2" << std::endl;
+        // std::cout << "[INFO] " << "in 2" << std::endl;
         std::cout << config["encode"]["resolution"][i][0]
                   << (config["encode"]["resolution"][i][1]) << std::endl;
         codec_par.width = config["encode"]["resolution"][i][0].as<int>();
@@ -73,7 +74,8 @@ bool DelayManager::measure(std::string video_path, CodecPar codec_par) {
 // ---------------------------- 
     int in_width = 1920;
     int in_height = 1080;
-    
+    int down_sample_factor = 1;
+
     int64_t encode_duration = 0;
     int64_t decode_duration = 0;
 
@@ -127,18 +129,17 @@ bool DelayManager::measure(std::string video_path, CodecPar codec_par) {
     encoder_h264_ctx->max_b_frames = 0; // 不需要B帧
     encoder_h264_ctx->gop_size = 120;
 
-
     av_opt_set(encoder_h264_ctx->priv_data,"preset","ultrafast",0);
     av_opt_set(encoder_h264_ctx->priv_data,"tune","zerolatency",0);
 
-    // encoder_h264_ctx->bit_rate = 400000; 
-
+     
     if(avcodec_open2(encoder_h264_ctx,encoder_h264,NULL)<0) {
         // ...
         std::cout << "[ERROR] " << "encoder open error" << std::endl;
         return false;
     }
 
+    // 初始化 Frame 和 Packet 容器
     AVFrame * in_frame = NULL;
     AVFrame * rescale_frame = NULL;
 
@@ -152,6 +153,7 @@ bool DelayManager::measure(std::string video_path, CodecPar codec_par) {
     out_pkt.data = NULL;
     out_pkt.size = 0;
 
+    // 初始化 尺度变换 上下文
     SwsContext * sws_ctx = sws_getContext(in_width,in_height,AV_PIX_FMT_YUV420P,
                                         codec_par.width,codec_par.height,AV_PIX_FMT_YUV420P,
                                         SWS_BICUBIC,NULL,NULL,NULL);
@@ -163,8 +165,7 @@ bool DelayManager::measure(std::string video_path, CodecPar codec_par) {
     int frame_num = 0;
     int ret = 0;
     
-
-    // @TODO: 在正式编码前还需要分辨率的转换 sws_scale
+    // 进入编码循环
     while (cnt < 120) {
         
         // if (fread(in_frame->data[0],1,one_frame_size,in_handler) <= 0 ||
@@ -179,11 +180,15 @@ bool DelayManager::measure(std::string video_path, CodecPar codec_par) {
         
         // @TODO: 在正式编码前还需要分辨率的转换 sws_scale
         int ret = fread(in_buffer,1,in_buffer_size,in_handler);
-        
+
         if (!ret) {
             // LOG_W("fread empty");
             break;
         }
+
+        // 以120FPS为标准 降采样
+        if (cnt % down_sample_factor != 0) continue;
+
 
         in_frame = av_frame_alloc();
         rescale_frame = av_frame_alloc();
@@ -198,10 +203,9 @@ bool DelayManager::measure(std::string video_path, CodecPar codec_par) {
         rescale_frame->width = encoder_h264_ctx->width;
         rescale_frame->height = encoder_h264_ctx->height;
 
-
         sws_scale(sws_ctx,in_frame->data,in_frame->linesize,0,in_height,rescale_frame->data,rescale_frame->linesize);
 
-        // @TODO 这边记录编码的时间
+        // 记录编码时间
         start = std::chrono::high_resolution_clock::now(); 
         ret = avcodec_encode_video2(encoder_h264_ctx,&out_pkt,rescale_frame,&got_picture);
         end = std::chrono::high_resolution_clock::now();
@@ -213,6 +217,7 @@ bool DelayManager::measure(std::string video_path, CodecPar codec_par) {
             return false;
         }
         in_frame->pts = cnt;
+        
         if(got_picture) {
             fwrite(out_pkt.data,1,out_pkt.size,out_handler);
             // std::cout << "[INFO] " << "success encode:" << frame_num << std::endl;
@@ -412,8 +417,9 @@ int DelayManager::run() {
     parser_config();
 
     std::cout << "[INFO] " << "finish parser config"<< std::endl;
-    record_fst.open("./results/delay.txt",std::ios::out);
-     
+    record_fst.open(config["output"]["recordpath"].as<std::string>(),std::ios::out);
+    
+    std::cout << "[INFO] 时延参数输出文件:" << config["output"]["recordpath"].as<std::string>() << std::endl;
     if (!record_fst.is_open()) {
         
         std::cout << "[ERROR] "<< "record file open failed !" << std::endl;

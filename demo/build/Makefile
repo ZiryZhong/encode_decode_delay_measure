@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/zzy/workspace/code/c++/h264_delay_exp/simplest_ffmpeg_video_encoder/encode_decode_delay_measure/demo
+CMAKE_SOURCE_DIR = /home/zzy/workspace/code/c++/h264_delay_exp/encode_decode_delay_measure/demo
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/zzy/workspace/code/c++/h264_delay_exp/simplest_ffmpeg_video_encoder/encode_decode_delay_measure/demo/build
+CMAKE_BINARY_DIR = /home/zzy/workspace/code/c++/h264_delay_exp/encode_decode_delay_measure/demo/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/zzy/workspace/code/c++/h264_delay_exp/simplest_ffmpeg_video_encoder/encode_decode_delay_measure/demo/build/CMakeFiles /home/zzy/workspace/code/c++/h264_delay_exp/simplest_ffmpeg_video_encoder/encode_decode_delay_measure/demo/build/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/zzy/workspace/code/c++/h264_delay_exp/encode_decode_delay_measure/demo/build/CMakeFiles /home/zzy/workspace/code/c++/h264_delay_exp/encode_decode_delay_measure/demo/build/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/zzy/workspace/code/c++/h264_delay_exp/simplest_ffmpeg_video_encoder/encode_decode_delay_measure/demo/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/zzy/workspace/code/c++/h264_delay_exp/encode_decode_delay_measure/demo/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -111,17 +111,57 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named demo
+# Target rules for targets named demo_decode
 
 # Build rule for target.
-demo: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 demo
-.PHONY : demo
+demo_decode: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 demo_decode
+.PHONY : demo_decode
 
 # fast build rule for target.
-demo/fast:
-	$(MAKE) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/build
-.PHONY : demo/fast
+demo_decode/fast:
+	$(MAKE) -f CMakeFiles/demo_decode.dir/build.make CMakeFiles/demo_decode.dir/build
+.PHONY : demo_decode/fast
+
+#=============================================================================
+# Target rules for targets named demo_encode
+
+# Build rule for target.
+demo_encode: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 demo_encode
+.PHONY : demo_encode
+
+# fast build rule for target.
+demo_encode/fast:
+	$(MAKE) -f CMakeFiles/demo_encode.dir/build.make CMakeFiles/demo_encode.dir/build
+.PHONY : demo_encode/fast
+
+decode_new.o: decode_new.cpp.o
+
+.PHONY : decode_new.o
+
+# target to build an object file
+decode_new.cpp.o:
+	$(MAKE) -f CMakeFiles/demo_decode.dir/build.make CMakeFiles/demo_decode.dir/decode_new.cpp.o
+.PHONY : decode_new.cpp.o
+
+decode_new.i: decode_new.cpp.i
+
+.PHONY : decode_new.i
+
+# target to preprocess a source file
+decode_new.cpp.i:
+	$(MAKE) -f CMakeFiles/demo_decode.dir/build.make CMakeFiles/demo_decode.dir/decode_new.cpp.i
+.PHONY : decode_new.cpp.i
+
+decode_new.s: decode_new.cpp.s
+
+.PHONY : decode_new.s
+
+# target to generate assembly for a file
+decode_new.cpp.s:
+	$(MAKE) -f CMakeFiles/demo_decode.dir/build.make CMakeFiles/demo_decode.dir/decode_new.cpp.s
+.PHONY : decode_new.cpp.s
 
 encode.o: encode.cpp.o
 
@@ -129,7 +169,7 @@ encode.o: encode.cpp.o
 
 # target to build an object file
 encode.cpp.o:
-	$(MAKE) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/encode.cpp.o
+	$(MAKE) -f CMakeFiles/demo_encode.dir/build.make CMakeFiles/demo_encode.dir/encode.cpp.o
 .PHONY : encode.cpp.o
 
 encode.i: encode.cpp.i
@@ -138,7 +178,7 @@ encode.i: encode.cpp.i
 
 # target to preprocess a source file
 encode.cpp.i:
-	$(MAKE) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/encode.cpp.i
+	$(MAKE) -f CMakeFiles/demo_encode.dir/build.make CMakeFiles/demo_encode.dir/encode.cpp.i
 .PHONY : encode.cpp.i
 
 encode.s: encode.cpp.s
@@ -147,7 +187,7 @@ encode.s: encode.cpp.s
 
 # target to generate assembly for a file
 encode.cpp.s:
-	$(MAKE) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/encode.cpp.s
+	$(MAKE) -f CMakeFiles/demo_encode.dir/build.make CMakeFiles/demo_encode.dir/encode.cpp.s
 .PHONY : encode.cpp.s
 
 # Help Target
@@ -158,7 +198,11 @@ help:
 	@echo "... depend"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
-	@echo "... demo"
+	@echo "... demo_decode"
+	@echo "... demo_encode"
+	@echo "... decode_new.o"
+	@echo "... decode_new.i"
+	@echo "... decode_new.s"
 	@echo "... encode.o"
 	@echo "... encode.i"
 	@echo "... encode.s"

@@ -4,7 +4,7 @@
  * @Author: congsir
  * @Date: 2022-07-06 19:37:19
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2022-07-07 19:33:35
+ * @LastEditTime: 2022-07-12 19:27:20
  */
 
 
@@ -135,9 +135,16 @@ int main() {
         }
         if (got_picture) {
             sws_scale(s_ctx,out_frame->data,out_frame->linesize,0,out_frame->height,out_frame_yuv->data,out_frame_yuv->linesize);
+            
             fwrite(out_frame_yuv->data[0],1,size,out_file);
             fwrite(out_frame_yuv->data[1],1,size/4,out_file);
             fwrite(out_frame_yuv->data[2],1,size/4,out_file);
+            std::cout << "avstream time_base" << in_stream->time_base.den << " " 
+                                             << out_frame_yuv->pkt_duration <<" "
+                                             << in_packet.duration << " "
+                                             
+                                             << in_packet.pts * av_q2d(in_stream->time_base)<< std::endl;
+                                            
             std::cout << "decode : " << cnt << std::endl;
             cnt ++;
         }

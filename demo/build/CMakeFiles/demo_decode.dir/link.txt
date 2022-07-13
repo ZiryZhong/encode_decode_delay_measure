@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/demo_decode.dir/decode_new.cpp.o  -o demo_decode  -lavcodec -lavutil -lavformat -lswscale 
