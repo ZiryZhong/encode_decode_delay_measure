@@ -4,7 +4,7 @@
  * @Author: congsir
  * @Date: 2022-07-07 19:47:23
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2022-07-13 11:12:56
+ * @LastEditTime: 2022-07-15 14:49:19
  */
 
 #include "delay_manager.hpp"
@@ -118,21 +118,21 @@ bool DelayManager::measure(std::string video_path, CodecPar codec_par) {
     }
 
     // 设置编码相关的参数
-    encoder_h264_ctx->pix_fmt = AV_PIX_FMT_YUV420P;
-    encoder_h264_ctx->width = codec_par.width;
-    encoder_h264_ctx->height = codec_par.height;
+    encoder_h264_ctx->pix_fmt = AV_PIX_FMT_YUV420P; // 设置像素格式为YUV420P 
+    encoder_h264_ctx->width = codec_par.width; // 不同尺寸编码 
+    encoder_h264_ctx->height = codec_par.height; // 不同尺寸编码 
     
     encoder_h264_ctx->time_base.num = 1;  
-    encoder_h264_ctx->time_base.den = codec_par.frame_rate;
+    encoder_h264_ctx->time_base.den = codec_par.frame_rate; // 设置帧率大小
 
-    encoder_h264_ctx->qmax = codec_par.qp;
-    encoder_h264_ctx->qmin = codec_par.qp;
+    encoder_h264_ctx->qmax = codec_par.qp; // 固定量化参数QP的大小
+    encoder_h264_ctx->qmin = codec_par.qp; // 固定量化参数QP的大小
     
     encoder_h264_ctx->max_b_frames = 0; // 不需要B帧
-    encoder_h264_ctx->gop_size = 120;
+    encoder_h264_ctx->gop_size = 120; // GOP设置为 120 保证GOP的格式为IPPP... 只含一个I帧
 
-    av_opt_set(encoder_h264_ctx->priv_data,"preset","ultrafast",0);
-    av_opt_set(encoder_h264_ctx->priv_data,"tune","zerolatency",0);
+    av_opt_set(encoder_h264_ctx->priv_data,"preset","ultrafast",0); // 对应极速（ultrafast）
+    av_opt_set(encoder_h264_ctx->priv_data,"tune","zerolatency",0); // 对应零延迟（zerolatency）
 
      
     if(avcodec_open2(encoder_h264_ctx,encoder_h264,NULL)<0) {
@@ -197,7 +197,7 @@ bool DelayManager::measure(std::string video_path, CodecPar codec_par) {
 
         in_frame = av_frame_alloc();
         rescale_frame = av_frame_alloc();
-
+        //
         av_image_fill_arrays(in_frame->data,in_frame->linesize,in_buffer,AV_PIX_FMT_YUV420P,in_width,in_height,1);
         av_image_fill_arrays(rescale_frame->data,rescale_frame->linesize,out_buffer,AV_PIX_FMT_YUV420P,codec_par.width,codec_par.height,1);
         in_frame->format = encoder_h264_ctx->pix_fmt;
@@ -207,7 +207,7 @@ bool DelayManager::measure(std::string video_path, CodecPar codec_par) {
         rescale_frame->format = encoder_h264_ctx->pix_fmt;
         rescale_frame->width = encoder_h264_ctx->width;
         rescale_frame->height = encoder_h264_ctx->height;
-
+        // 进行尺度变换
         sws_scale(sws_ctx,in_frame->data,in_frame->linesize,0,in_height,rescale_frame->data,rescale_frame->linesize);
 
         // 记录编码时间
@@ -361,7 +361,7 @@ bool DelayManager::measure(std::string video_path, CodecPar codec_par) {
             continue;
         }
 
-        // @TODO 这边记录解码的时间
+        // 这边记录解码的时间
         start = std::chrono::high_resolution_clock::now();
         ret = avcodec_decode_video2(decoder_h264_ctx,rescale_frame,&got_picture,&in_pkt);
         end = std::chrono::high_resolution_clock::now();

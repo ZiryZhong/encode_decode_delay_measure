@@ -1,22 +1,22 @@
 encode:
   resolution:
     - [1920, 1080]
-    - [1280, 720]
-    - [960, 540]
-    - [640, 360]
+    # - [1280, 720]
+    # - [960, 540]
+    # - [640, 360]
   
   framerate:
     - 120
-    - 60
-    - 30
-    - 15
+    # - 60
+    # - 30
+    # - 15
 
   QP:
     - 22 
-    - 27
-    - 32
-    - 37
-    - 42
+    # - 27
+    # - 32
+    # - 37
+    # - 42
   
 
 decode: 
@@ -29,11 +29,13 @@ videos:
 #  - "/home/smt/Downloads/video/testone5.yuv"
 #  - "/home/smt/Downloads/video/testone6.yuv"
 #  - "/home/smt/Downloads/video/testone7.yuv"
-  - "/home/smt/Downloads/video/testone8.yuv"
-  - "/home/smt/Downloads/video/testone9.yuv"
-  - "/home/smt/Downloads/video/testone10.yuv"
-  - "/home/smt/Downloads/video/testone11.yuv"
-  - "/home/smt/Downloads/video/testone12.yuv"
+  # - "/home/smt/Downloads/video/testone8.yuv"
+  # - "/home/smt/Downloads/video/testone9.yuv"
+  # - "/home/smt/Downloads/video/testone10.yuv"
+  # - "/home/smt/Downloads/video/testone11.yuv"
+  # - "/home/smt/Downloads/video/testone12.yuv"
+
+  - "/mnt/g/video/testone7.yuv"
 output:
   recordpath: "./results/delay.txt"
 
