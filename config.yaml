@@ -1,4 +1,9 @@
 encode:
+  open: true
+  type:
+    - "h264_cpu"
+    # - "h265_cpu"
+
   resolution:
     - [1920, 1080]
     # - [1280, 720]
@@ -13,13 +18,17 @@ encode:
 
   QP:
     - 22 
-    # - 27
+    - 27
     # - 32
     # - 37
     # - 42
   
 
 decode: 
+  open: true
+  type:
+    - "h264_cpu"
+
 
 videos:
 #  - "/home/smt/Downloads/video/testone1.yuv"
@@ -36,9 +45,16 @@ videos:
   # - "/home/smt/Downloads/video/testone12.yuv"
 
   - "/mnt/g/video/testone7.yuv"
-output:
-  recordpath: "./results/delay.txt"
 
+
+output:
+  encode_recordpath: "./results/delay_encode.txt"
+
+  decode_recordpath: "./results/delay_decode.txt"
+  
+  encode_out_dir: "./videos/encode/"
+  
+  decode_out_dir: "./videos/decode/"
 
 
 settings:
