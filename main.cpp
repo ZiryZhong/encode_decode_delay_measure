@@ -4,7 +4,7 @@
  * @Author: congsir
  * @Date: 2022-07-05 11:58:12
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2022-07-12 11:09:22
+ * @LastEditTime: 2022-07-30 15:15:48
  */
 
 #include<iostream>
@@ -18,7 +18,7 @@ int main() {
 
     DelayManager dm;
 
-    dm.run();
+    dm.run("./config.yaml");
 
     return 0;
 }

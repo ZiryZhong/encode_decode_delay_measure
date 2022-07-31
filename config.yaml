@@ -1,5 +1,5 @@
 encode:
-  open: true
+  
   type:
     - "h264_cpu"
     # - "h265_cpu"
@@ -25,7 +25,7 @@ encode:
   
 
 decode: 
-  open: true
+  
   type:
     - "h264_cpu"
 
@@ -59,3 +59,5 @@ output:
 
 settings:
   save_each_h264: "off"
+  encode: true
+  decode: false

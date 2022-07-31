@@ -4,7 +4,7 @@
  * @Author: congsir
  * @Date: 2022-07-07 19:47:23
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2022-07-31 14:53:57
+ * @LastEditTime: 2022-07-31 15:05:58
  */
 
 #include "delay_manager.hpp"
@@ -905,7 +905,10 @@ int DelayManager::run(std::string config_file_path) {
 
     // 编码时延测量
     for (int i=0;i<config["videos"].size();i++) {
-        
+        if (!config["settings"]["encode"].as<bool>()) {
+            std::cout << "[INFO] 未开启编码" << std::endl;
+            break;
+        }
         for(int j=0;j<config["encode"]["type"].size();j++) {
             
             std::cout << config["encode"]["type"][j].as<std::string>() << std::endl;
@@ -928,6 +931,10 @@ int DelayManager::run(std::string config_file_path) {
     // 解码时延测量
     std::cout << files.size() << std::endl;
     for (int i=0;i<files.size();i++) {
+        if (!config["settings"]["decode"].as<bool>()) {
+            std::cout << "[INFO] 未开启解码" << std::endl;
+            break;
+        }
         for(int j=0;j<config["decode"]["type"].size();j++) {
             std::string in_path = config["output"]["encode_out_dir"].as<std::string>() + files[i];
             std::cout << config["decode"]["type"][j].as<std::string>() << std::endl;
