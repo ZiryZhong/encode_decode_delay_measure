@@ -10,8 +10,8 @@
 #include "delay_manager.hpp"
 #include <chrono>
 #include <dirent.h>
-
-
+#include <unistd.h>
+#include <ctime>
 extern "C" {
 
     #include "libavcodec/avcodec.h"
@@ -29,6 +29,55 @@ bool DelayManager::parser_config(std::string config_file_path) {
     
     return true;
 }
+
+bool cmp(std::string a,std::string b) {
+
+    size_t a_pos = a.find_last_of("-");
+    size_t b_pos = b.find_last_of("-");
+
+    std::string a_sub = a.substr(7,a_pos-7);
+    std::string b_sub = b.substr(7,b_pos-7);
+
+    int a_num = atoi(a_sub.c_str());
+    int b_num = atoi(b_sub.c_str());
+
+    return a_num < b_num;
+
+}
+
+bool cmp_in_one_video(std::string a,std::string b) {
+    size_t a_pos = a.find_last_of("-");
+    size_t b_pos = b.find_last_of("-");
+
+    std::string a_sub = a.substr(a_pos+1,a.length()-a_pos+1);
+    std::string b_sub = b.substr(b_pos+1,b.length()-b_pos+1);
+
+    int a_num = atoi(a_sub.c_str());
+    int b_num = atoi(b_sub.c_str());
+
+    return a_num < b_num;
+}
+
+void trim(std::string &s)
+{
+    /*
+    if( !s.empty() )
+    {
+        s.erase(0,s.find_first_not_of(" "));
+        s.erase(s.find_last_not_of(" ") + 1);
+    }
+    */
+    int index = 0;
+    if( !s.empty())
+    {
+        while( (index = s.find(' ',index)) != std::string::npos)
+        {
+            s.erase(index,1);
+        }
+    }
+ 
+}
+
 void get_files(std::string PATH,std::vector<std::string> & files)  
 {  
 
@@ -47,7 +96,11 @@ void get_files(std::string PATH,std::vector<std::string> & files)
         //cout << ptr->d_name << endl;
         files.push_back(ptr->d_name);
     }
-    
+    sort(files.begin(),files.end(),cmp);
+    int num_for_one_video = 80; 
+    for (int i = 0; i<12; i++) {
+        sort(files.begin()+i*80,files.begin()+(i+1)*80,cmp_in_one_video);
+    }   
     // for (int i = 0; i < files.size(); ++i)
     // {
     //     std::cout << files[i] << std::endl;
@@ -86,7 +139,7 @@ bool DelayManager::encode_for_one_video(std::string video_path,std::string codec
     CodecPar codec_par;
     
     int ret = 0;
-    
+    int cnt = 0;
     std::string out_dir = config["output"]["encode_out_dir"].as<std::string>();
 
     // std::cout << "[INFO] " << "in 1" << std::endl;
@@ -104,7 +157,7 @@ bool DelayManager::encode_for_one_video(std::string video_path,std::string codec
             codec_par.frame_rate = config["encode"]["framerate"][j].as<int>();
             
             for(int k=0;k<config["encode"]["QP"].size();k++) {
-
+		
                 codec_par.qp = config["encode"]["QP"][k].as<int>();
                 
                 // encode_config(codec_par);
@@ -116,8 +169,8 @@ bool DelayManager::encode_for_one_video(std::string video_path,std::string codec
                 if (codec_type == "h264_cpu") {
                     codec_par.codec_type = CODEC_TYPE::CODEC_H264_CPU;
                 
-                    std::string video_out_path = out_dir + get_video_name(video_path) +"-"+ std::to_string((i+1) * (j+1) * (k+1)) + ".h264";
-                    std::cout <<"[INFO] in path:"<<video_path<< " | "<< "out path:"<<video_out_path<< std::endl;
+                    std::string video_out_path = out_dir + get_video_name(video_path) +"-"+ std::to_string(cnt) + ".h264";
+                    std::cout <<"[INFO] codec type: h264_cpu | "<<"in path:"<<video_path<< " | "<< "out path:"<<video_out_path<< std::endl;
 
                     FILE * in_video = fopen(video_path.c_str(),"rb");
                     if (!in_video) {
@@ -130,14 +183,43 @@ bool DelayManager::encode_for_one_video(std::string video_path,std::string codec
                     }
                     record_fst << video_path;
                     ret = measure_encode(in_video,out_video,codec_par);
-
+		    
+		            cnt ++;
+                    
+                    fclose(in_video);
+                    fclose(out_video);
+		
+                } else if (codec_type == "h265_cpu") {
+                    // @TODO
+                    codec_par.codec_type = CODEC_TYPE::CODEC_H265_CPU;
+                
+                    std::string video_out_path = out_dir + get_video_name(video_path) +"-"+ std::to_string(cnt) + ".h265";
+                    std::cout <<"[INFO] codec type: h265_cpu"<<" | "<<"in path:"<<video_path<< " | "<< "out path:"<<video_out_path<< std::endl;
+                    FILE * in_video = fopen(video_path.c_str(),"rb");
+                    if (!in_video) {
+                        return false;
+                    }
+                    FILE * out_video = fopen(video_out_path.c_str(),"wb");
+                    if (!out_video) {
+                        fclose(in_video);
+                        return false;
+                    }
+                    record_fst << video_path;
+                    ret = measure_encode(in_video,out_video,codec_par);
+		    
+		            cnt ++;
+                    
                     fclose(in_video);
                     fclose(out_video);
 
-                } else if (codec_type == "h265_cpu") {
-                    // @TODO
+
+
                 } else {
                     // @TODO 
+
+
+
+
                     return true;
                 }
 
@@ -166,8 +248,9 @@ bool DelayManager::decode_for_one_video(std::string video_path,std::string codec
 
         codec_id = AV_CODEC_ID_H264;        
         std::string video_out_path = out_dir + get_video_name(video_path) + ".yuv";
+        
         std::cout <<"[INFO] in path:"<<video_path<< " | "<< "out path:"<<video_out_path<< std::endl;
-
+	
         FILE * out_video = fopen(video_out_path.c_str(),"wb");
         if (!out_video) {
             return false;
@@ -182,7 +265,7 @@ bool DelayManager::decode_for_one_video(std::string video_path,std::string codec
 
         ret = measure_decode(fmt_ctx,out_video,codec_id);
         avformat_close_input(&fmt_ctx);
-        
+        sws_freeContext(m_sws_ctx);
         fclose(out_video);
 
         } else if (codec_type == "h265_cpu") {
@@ -198,17 +281,17 @@ bool DelayManager::encode_config(CodecPar in_codec_par) {
     // 配置好编码前的一些参数变量
     // 
     // 先释放资源后再进行参数赋值
-    if (m_encoder) {
+    // if (m_encoder) {
 
-    }
+    // }
 
-    if (m_encoder_ctx) {
+    // if (m_encoder_ctx) {
 
-    }
+    // }
 
-    if (m_sws_ctx) {
+    // if (m_sws_ctx) {
 
-    }
+    // }
 
    
     switch (in_codec_par.codec_type)
@@ -216,7 +299,8 @@ bool DelayManager::encode_config(CodecPar in_codec_par) {
         case CODEC_TYPE::CODEC_H264_CPU:
             m_encoder = avcodec_find_encoder(AV_CODEC_ID_H264);
             break;
-
+        case CODEC_TYPE::CODEC_H265_CPU:
+            m_encoder = avcodec_find_encoder(AV_CODEC_ID_HEVC);
         default:
 
             break;
@@ -235,10 +319,13 @@ bool DelayManager::encode_config(CodecPar in_codec_par) {
     m_encoder_ctx->max_b_frames = 0;
     m_encoder_ctx->qmax = in_codec_par.qp;
     m_encoder_ctx->qmin = in_codec_par.qp;
-    m_encoder_ctx->gop_size = 120;
+    m_encoder_ctx->gop_size = in_codec_par.frame_rate;
 
     // H264的特别设置
     if (in_codec_par.codec_type == CODEC_TYPE::CODEC_H264_CPU) {
+        av_opt_set(m_encoder_ctx->priv_data,"preset","ultrafast",0); // 对应极速（ultrafast）
+        av_opt_set(m_encoder_ctx->priv_data,"tune","zerolatency",0); // 对应零延迟（zerolatency）
+    } else if (in_codec_par.codec_type == CODEC_TYPE::CODEC_H265_CPU) {
         av_opt_set(m_encoder_ctx->priv_data,"preset","ultrafast",0); // 对应极速（ultrafast）
         av_opt_set(m_encoder_ctx->priv_data,"tune","zerolatency",0); // 对应零延迟（zerolatency）
     }
@@ -309,7 +396,8 @@ bool DelayManager::measure_encode(FILE* in_video, FILE* out_video, CodecPar in_c
     int cnt = 0;
     int frame_num = 0;
     int ret = 0;
-    
+    in_frame = av_frame_alloc();
+    rescale_frame = av_frame_alloc();
     down_sample_factor = 120 / in_codec_par.frame_rate;
     // 进入编码循环
     while (cnt < 120) {
@@ -328,8 +416,7 @@ bool DelayManager::measure_encode(FILE* in_video, FILE* out_video, CodecPar in_c
             continue;
         }
 
-        in_frame = av_frame_alloc();
-        rescale_frame = av_frame_alloc();
+
         
         av_image_fill_arrays(in_frame->data,in_frame->linesize,in_buffer,AV_PIX_FMT_YUV420P,in_width,in_height,1);
         av_image_fill_arrays(rescale_frame->data,rescale_frame->linesize,out_buffer,AV_PIX_FMT_YUV420P,in_codec_par.width,in_codec_par.height,1);
@@ -361,8 +448,7 @@ bool DelayManager::measure_encode(FILE* in_video, FILE* out_video, CodecPar in_c
             frame_num ++ ;
         }
         cnt ++;
-        av_frame_free(&in_frame);
-        av_frame_free(&rescale_frame);
+
         av_packet_unref(&out_pkt);
     }
 
@@ -385,8 +471,13 @@ bool DelayManager::measure_encode(FILE* in_video, FILE* out_video, CodecPar in_c
     
     avcodec_close(m_encoder_ctx);
     av_free(m_encoder_ctx);
-    // av_freep(&in_frame->data[0]);
-    // av_frame_free(&in_frame);
+    
+    av_freep(&in_frame->data[0]);
+    av_frame_free(&in_frame);
+    
+    av_freep(&rescale_frame->data[0]);
+    av_frame_free(&rescale_frame);
+    
     sws_freeContext(m_sws_ctx);
     file_size = file_size / 1000.f;
     record_fst << " " << file_size << " " <<in_codec_par.width << " " << in_codec_par.height << " " << in_codec_par.qp
@@ -494,10 +585,10 @@ bool DelayManager::measure_decode(AVFormatContext * fmt_ctx, FILE* out_video,AVC
             return -1;
         }
         if (got_picture) {
-            sws_scale(m_sws_ctx,rescale_frame->data,rescale_frame->linesize,0,rescale_frame->height,rescale_frame_yuv->data,rescale_frame_yuv->linesize);
-            fwrite(rescale_frame_yuv->data[0],1,size,out_video);
-            fwrite(rescale_frame_yuv->data[1],1,size/4,out_video);
-            fwrite(rescale_frame_yuv->data[2],1,size/4,out_video);
+//            sws_scale(m_sws_ctx,rescale_frame->data,rescale_frame->linesize,0,rescale_frame->height,rescale_frame_yuv->data,rescale_frame_yuv->linesize);
+//            fwrite(rescale_frame_yuv->data[0],1,size,out_video);
+//            fwrite(rescale_frame_yuv->data[1],1,size/4,out_video);
+//            fwrite(rescale_frame_yuv->data[2],1,size/4,out_video);
             std::cout << "[INFO] " <<"success decode : " << cnt << std::endl;
             cnt ++;
         }
@@ -512,19 +603,23 @@ bool DelayManager::measure_decode(AVFormatContext * fmt_ctx, FILE* out_video,AVC
             return -1;
         }
         if (got_picture) {
-            sws_scale(m_sws_ctx,rescale_frame->data,rescale_frame->linesize,1,rescale_frame->height,rescale_frame_yuv->data,rescale_frame_yuv->linesize);
-            fwrite(rescale_frame_yuv->data[0],1,size,out_video);
-            fwrite(rescale_frame_yuv->data[1],1,size/4,out_video);
-            fwrite(rescale_frame_yuv->data[2],1,size/4,out_video);
+//            sws_scale(m_sws_ctx,rescale_frame->data,rescale_frame->linesize,1,rescale_frame->height,rescale_frame_yuv->data,rescale_frame_yuv->linesize);
+//            fwrite(rescale_frame_yuv->data[0],1,size,out_video);
+//            fwrite(rescale_frame_yuv->data[1],1,size/4,out_video);
+//            fwrite(rescale_frame_yuv->data[2],1,size/4,out_video);
             
             std::cout << "[INFO] " <<"flush decode : " << cnt << std::endl;
             cnt ++;
         }
     }
-
+    
+    avcodec_close(m_decoder_ctx);
+    av_free(m_decoder_ctx);
+    av_freep(&rescale_frame->data[0]);
     av_frame_free(&rescale_frame);
+    av_freep(&rescale_frame_yuv->data[0]);
     av_frame_free(&rescale_frame_yuv);
-
+    
     // 将最后的时间输出到文件:
     std::cout << decode_duration*1e-9 << std::endl;
     record_fst <<" "<< decode_duration*1e-9 << "\n";
@@ -893,56 +988,75 @@ int DelayManager::run(std::string config_file_path) {
     
     std::cout << "[INFO] " << "finish parser config"<< std::endl;
     
-    record_fst.open(config["output"]["encode_recordpath"].as<std::string>(),std::ios::out);
+    // 基于当前系统的当前日期/时间
+    time_t now = time(0);
+    // 把 now 转换为字符串形式
+    char* dt = ctime(&now);
+    std::string a = dt;
+    trim(a);
+    std::cout << "本地日期和时间：" << a << std::endl;
+    std::string cmd = "sudo mkdir ./results/" + a; 
     
-    std::cout << "[INFO] 时延参数输出文件:" << config["output"]["encode_recordpath"].as<std::string>() << std::endl;
-    
-    if (!record_fst.is_open()) {
-        
-        std::cout << "[ERROR] "<< "record file open failed !" << std::endl;
-        return false;
-    }
+    // system(cmd.c_str());
+    // system("echo smt");
 
-    // 编码时延测量
-    for (int i=0;i<config["videos"].size();i++) {
-        if (!config["settings"]["encode"].as<bool>()) {
-            std::cout << "[INFO] 未开启编码" << std::endl;
-            break;
-        }
-        for(int j=0;j<config["encode"]["type"].size();j++) {
+    // 进行t次实验
+    for(int t=0;t<config["settings"]["time"].as<int>();t++) {
+        std::string record_path = config["output"]["encode_recordpath"].as<std::string>() + std::to_string(t) + ".txt";
+        record_fst.open(record_path,std::ios::out);
+        
+        std::cout << "[INFO] 时延参数输出文件:" << record_path << std::endl;
+        
+        if (!record_fst.is_open()) {
             
-            std::cout << config["encode"]["type"][j].as<std::string>() << std::endl;
-            encode_for_one_video(config["videos"][i].as<std::string>(),config["encode"]["type"][j].as<std::string>());
+            std::cout << "[ERROR] "<< "record file open failed !" << std::endl;
+            return false;
+        }
+
+        // 编码时延测量
+        for (int i=0;i<config["videos"].size();i++) {
+            if (!config["settings"]["encode"].as<bool>()) {
+                std::cout << "[INFO] 未开启编码" << std::endl;
+                break;
+            }
+            for(int j=0;j<config["encode"]["type"].size();j++) {
+                
+                std::cout << config["encode"]["type"][j].as<std::string>() << std::endl;
+                encode_for_one_video(config["videos"][i].as<std::string>(),config["encode"]["type"][j].as<std::string>());
+            
+            }
         
         }
-    
-    }
-    record_fst.close();
-
-    record_fst.open(config["output"]["decode_recordpath"].as<std::string>(),std::ios::out);
-    if(!record_fst.is_open()) {
-        std::cout << "decode record path open failed" << std::endl;
-        return false;
-    }
-    
-    std::vector<std::string> files;
-    get_files(config["output"]["encode_out_dir"].as<std::string>(), files);
-    
-    // 解码时延测量
-    std::cout << files.size() << std::endl;
-    for (int i=0;i<files.size();i++) {
-        if (!config["settings"]["decode"].as<bool>()) {
-            std::cout << "[INFO] 未开启解码" << std::endl;
-            break;
+        record_fst.close();
+        record_path = config["output"]["decode_recordpath"].as<std::string>() + std::to_string(t) + ".txt";
+        record_fst.open(record_path,std::ios::out);
+        if(!record_fst.is_open()) {
+            std::cout << "decode record path open failed" << std::endl;
+            return false;
         }
-        for(int j=0;j<config["decode"]["type"].size();j++) {
-            std::string in_path = config["output"]["encode_out_dir"].as<std::string>() + files[i];
-            std::cout << config["decode"]["type"][j].as<std::string>() << std::endl;
-            decode_for_one_video(in_path,config["decode"]["type"][j].as<std::string>());
+        
+        std::vector<std::string> files;
+        get_files(config["output"]["encode_out_dir"].as<std::string>(), files);
+        for(int p=0;p<files.size();p++) {
+            std::cout << files[p] << std::endl;
         }
-    }
+        // 解码时延测量
+        std::cout << files.size() << std::endl;
+        for (int i=0;i<files.size();i++) {
+            if (!config["settings"]["decode"].as<bool>()) {
+                std::cout << "[INFO] 未开启解码" << std::endl;
+                break;
+            }
+            for(int j=0;j<config["decode"]["type"].size();j++) {
+                std::string in_path = config["output"]["encode_out_dir"].as<std::string>() + files[i];
+                std::cout << config["decode"]["type"][j].as<std::string>() << std::endl;
+                
+                decode_for_one_video(in_path,config["decode"]["type"][j].as<std::string>());
+            }
+        }
 
-    record_fst.close();
+        record_fst.close();
+    }
 
     return 1;
 }

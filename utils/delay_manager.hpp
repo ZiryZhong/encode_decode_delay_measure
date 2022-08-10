@@ -22,7 +22,9 @@
 
 enum CODEC_TYPE{
     CODEC_H264_CPU = 0,
-    CODEC_H265_GPU = 1
+    CODEC_H265_CPU = 1,
+    CODEC_H264_GPU = 2,
+    CODEC_H265_GPU = 3
 };
 
 

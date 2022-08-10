@@ -6,22 +6,22 @@ encode:
 
   resolution:
     - [1920, 1080]
-    # - [1280, 720]
-    # - [960, 540]
-    # - [640, 360]
+    - [1280, 720]
+    - [960, 540]
+    - [640, 360]
   
   framerate:
     - 120
-    # - 60
-    # - 30
-    # - 15
+    - 60
+    - 30
+    - 15
 
   QP:
     - 22 
     - 27
-    # - 32
-    # - 37
-    # - 42
+    - 32
+    - 37
+    - 42
   
 
 decode: 
@@ -31,26 +31,26 @@ decode:
 
 
 videos:
-#  - "/home/smt/Downloads/video/testone1.yuv"
-#  - "/home/smt/Downloads/video/testone2.yuv"
-#  - "/home/smt/Downloads/video/testone3.yuv"
-#  - "/home/smt/Downloads/video/testone4.yuv"
-#  - "/home/smt/Downloads/video/testone5.yuv"
-#  - "/home/smt/Downloads/video/testone6.yuv"
-#  - "/home/smt/Downloads/video/testone7.yuv"
-  # - "/home/smt/Downloads/video/testone8.yuv"
-  # - "/home/smt/Downloads/video/testone9.yuv"
-  # - "/home/smt/Downloads/video/testone10.yuv"
-  # - "/home/smt/Downloads/video/testone11.yuv"
-  # - "/home/smt/Downloads/video/testone12.yuv"
+  - "/home/smt/Downloads/video/testone1.yuv"
+  - "/home/smt/Downloads/video/testone2.yuv"
+  - "/home/smt/Downloads/video/testone3.yuv"
+  - "/home/smt/Downloads/video/testone4.yuv"
+  - "/home/smt/Downloads/video/testone5.yuv"
+  - "/home/smt/Downloads/video/testone6.yuv"
+  - "/home/smt/Downloads/video/testone7.yuv"
+  - "/home/smt/Downloads/video/testone8.yuv"
+  - "/home/smt/Downloads/video/testone9.yuv"
+  - "/home/smt/Downloads/video/testone10.yuv"
+  - "/home/smt/Downloads/video/testone11.yuv"
+  - "/home/smt/Downloads/video/testone12.yuv"
 
-  - "/mnt/g/video/testone7.yuv"
+  # - "/mnt/g/video/testone7.yuv"
 
 
 output:
-  encode_recordpath: "./results/delay_encode.txt"
+  encode_recordpath: "./results/2022-0807/delay_encode"
 
-  decode_recordpath: "./results/delay_decode.txt"
+  decode_recordpath: "./results/2022-0807/delay_decode"
   
   encode_out_dir: "./videos/encode/"
   
@@ -58,6 +58,7 @@ output:
 
 
 settings:
-  save_each_h264: "off"
+  save_each_h264: false
   encode: true
-  decode: false
+  decode: true
+  time: 10
